@@ -1,3 +1,4 @@
+
 #include "Contact.h"
 #include <sstream>
 
