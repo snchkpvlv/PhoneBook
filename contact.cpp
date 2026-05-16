@@ -1,23 +1,27 @@
-#include "contact.h"
+#include "Contact.h"
+#include <sstream>
 
-QStringList Contact::toDisplayList() const {
-    QString phonesStr = phonesAsString();
-    
+std::string PhoneInfo::displayString() const {
+    return type + ": " + number;
+}
+
+std::vector<std::string> Contact::toDisplayList() const {
     return {
         lastName,
         firstName,
         patronymic,
         address,
-        birthDate.toString("dd.MM.yyyy"),
+        birthDate,
         email,
-        phonesStr
+        phonesAsString()
     };
 }
 
-QString Contact::phonesAsString() const {
-    QStringList phoneStrings;
-    for (const PhoneInfo& p : phones) {
-        phoneStrings << p.displayString();
+std::string Contact::phonesAsString() const {
+    std::stringstream ss;
+    for (size_t i = 0; i < phones.size(); ++i) {
+        if (i > 0) ss << "; ";
+        ss << phones[i].displayString();
     }
-    return phoneStrings.join("; ");
+    return ss.str();
 }

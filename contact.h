@@ -1,31 +1,28 @@
 #ifndef CONTACT_H
 #define CONTACT_H
 
-#include <QString>
-#include <QList>
-#include <QDate>
+#include <string>
+#include <vector>
+#include <ctime>
 
 struct PhoneInfo {
-    QString type; 
-    QString number; 
+    std::string type;      
+    std::string number;    
     
-    QString displayString() const {
-        return type + ": " + number;
-    }
+    std::string displayString() const;
 };
 
 struct Contact {
-    QString firstName;
-    QString lastName;
-    QString patronymic;
-    QString address;
-    QDate birthDate;
-    QString email;
-    QList<PhoneInfo> phones; 
-
-    QStringList toDisplayList() const;
+    std::string firstName;
+    std::string lastName;
+    std::string patronymic;
+    std::string address;
+    std::string birthDate;    
+    std::string email;
+    std::vector<PhoneInfo> phones;
     
-    QString phonesAsString() const;
+    std::vector<std::string> toDisplayList() const;
+    std::string phonesAsString() const;
 };
 
 #endif
