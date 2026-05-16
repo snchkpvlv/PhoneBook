@@ -1,22 +1,25 @@
-QT += core widgets gui
-
-CONFIG += c++17 console
+TEMPLATE = app
+CONFIG += console c++17
 CONFIG -= app_bundle
 
-TARGET = PhoneBook
+# Пути для libpq (Homebrew на Mac)
+LIBS += -L/opt/homebrew/opt/libpq/lib -lpq
+INCLUDEPATH += /opt/homebrew/opt/libpq/include
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    contact.cpp \
-    contactvalidator.cpp
+    Contact.cpp \
+    ContactValidator.cpp \
+    FileRepository.cpp \
+    PostgresRepository.cpp \
+    RepositoryFactory.cpp
 
 HEADERS += \
-    mainwindow.h \
-    contact.h \
-    contactvalidator.h
+    Contact.h \
+    ContactValidator.h \
+    IRepository.h \
+    FileRepository.h \
+    PostgresRepository.h \
+    RepositoryFactory.h
 
-# Для правильной работы регулярных выражений с юникодом
 DEFINES += QT_USE_QSTRINGBUILDER
-
-
