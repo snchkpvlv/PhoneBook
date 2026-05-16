@@ -1,16 +1,19 @@
-TEMPLATE = app
-CONFIG += console c++17
+QT += core widgets gui
+
+CONFIG += c++17
 CONFIG -= app_bundle
+
+TARGET = PhoneBook
 
 SOURCES += \
     main.cpp \
-    Contact.cpp \
-    ContactValidator.cpp \
-    FileStorage.cpp
+    mainwindow.cpp \
+    contact.cpp \
+    contactvalidator.cpp
 
 HEADERS += \
-    Contact.h \
-    ContactValidator.h \
-    FileStorage.h
+    mainwindow.h \
+    contact.h \
+    contactvalidator.h
 
 DEFINES += QT_USE_QSTRINGBUILDER
