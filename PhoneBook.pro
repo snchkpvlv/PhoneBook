@@ -1,22 +1,16 @@
-QT += core widgets gui
-
-CONFIG += c++17 console
+TEMPLATE = app
+CONFIG += console c++17
 CONFIG -= app_bundle
-
-TARGET = PhoneBook
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    contact.cpp \
-    contactvalidator.cpp
+    Contact.cpp \
+    ContactValidator.cpp \
+    FileStorage.cpp
 
 HEADERS += \
-    mainwindow.h \
-    contact.h \
-    contactvalidator.h
+    Contact.h \
+    ContactValidator.h \
+    FileStorage.h
 
-# Для правильной работы регулярных выражений с юникодом
 DEFINES += QT_USE_QSTRINGBUILDER
-
-
