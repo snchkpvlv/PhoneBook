@@ -14,11 +14,9 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QDateEdit>
-#include <QCalendarWidget>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QListWidget>
-#include <QGroupBox>
 #include <QHeaderView>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -38,7 +36,6 @@ void MainWindow::setupUI()
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
-    // Выпадающий список для выбора поля поиска
     searchFieldComboBox = new QComboBox(this);
     searchFieldComboBox->addItem("Все поля");
     searchFieldComboBox->addItem("Фамилия");
@@ -61,7 +58,6 @@ void MainWindow::setupUI()
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
     tableView->horizontalHeader()->setStretchLastSection(true);
 
     QHBoxLayout *searchLayout = new QHBoxLayout();
@@ -74,12 +70,11 @@ void MainWindow::setupUI()
     centralWidget->setLayout(mainLayout);
 
     connect(searchBox, SIGNAL(textChanged(const QString &)), this, SLOT(onSearchTextChanged(const QString &)));
-    connect(searchFieldComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSearchFieldChanged(int))); // ДОБАВЛЕНО
+    connect(searchFieldComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSearchFieldChanged(int)));
 }
 
 void MainWindow::onSearchFieldChanged(int index)
 {
-    // При изменении поля поиска обновляем поиск с текущим текстом
     onSearchTextChanged(searchBox->text());
 }
 
@@ -92,11 +87,9 @@ void MainWindow::onSearchTextChanged(const QString &text)
         bool show = false;
         
         if (searchField == 0) {
-            // Поиск по всем полям
             for (int j = 0; j < model->columnCount(); ++j) {
                 QString cellText = model->item(i, j)->text();
                 
-                // Для столбца с телефонами извлекаем только цифры
                 if (j == 6) {
                     QString phoneDigits;
                     for (const QChar &ch : cellText) {
@@ -116,12 +109,10 @@ void MainWindow::onSearchTextChanged(const QString &text)
                 }
             }
         } else {
-            // Поиск по конкретному полю 
             int columnIndex = searchField - 1;
             if (columnIndex >= 0 && columnIndex < model->columnCount()) {
                 QString cellText = model->item(i, columnIndex)->text();
                 
-                // Особый случай для телефонов
                 if (columnIndex == 6) {
                     QString phoneDigits;
                     for (const QChar &ch : cellText) {
@@ -180,12 +171,12 @@ void MainWindow::createMenus()
 
 void MainWindow::updateTable()
 {
-    model->removeRows(0, model->rowCount());//очистка таблицы
+    model->removeRows(0, model->rowCount());
     for (const Contact &c : contacts) {
         QList<QStandardItem*> row;
         for (const QString &s : c.toDisplayList()) {
             QStandardItem *item = new QStandardItem(s);
-            if (row.size() == 4) { // Индекс столбца с датой
+            if (row.size() == 4) {
                 item->setData(c.birthDate, Qt::UserRole);
             }
             row << item;
@@ -227,14 +218,12 @@ bool MainWindow::editPhones(QList<PhoneInfo> &phones)
     
     QVBoxLayout *mainLayout = new QVBoxLayout(&dialog);
     
-    // Список телефонов, каждый добавляется как элемент списка
     QListWidget *listWidget = new QListWidget(&dialog);
     for (const PhoneInfo &phone : phones) {
         listWidget->addItem(phone.displayString());
     }
     mainLayout->addWidget(listWidget);
     
-    // Кнопки управления телефонами
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     
     QPushButton *btnAdd = new QPushButton("Добавить", &dialog);
@@ -248,11 +237,9 @@ bool MainWindow::editPhones(QList<PhoneInfo> &phones)
     
     mainLayout->addLayout(buttonLayout);
     
-    // Кнопки OK/Cancel
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     mainLayout->addWidget(buttonBox);
     
-    // добавить
     connect(btnAdd, &QPushButton::clicked, [&]() {
         bool ok;
         QString number = QInputDialog::getText(&dialog, "Новый телефон", 
@@ -277,7 +264,6 @@ bool MainWindow::editPhones(QList<PhoneInfo> &phones)
         listWidget->addItem(newPhone.displayString());
     });
     
-    //редактировать
     connect(btnEdit, &QPushButton::clicked, [&]() {
         int row = listWidget->currentRow();
         if (row < 0 || row >= phones.size()) return;
@@ -305,7 +291,6 @@ bool MainWindow::editPhones(QList<PhoneInfo> &phones)
         listWidget->item(row)->setText(phone.displayString());
     });
     
-    //удалить
     connect(btnRemove, &QPushButton::clicked, [&]() {
         int row = listWidget->currentRow();
         if (row >= 0 && row < phones.size()) {
@@ -328,13 +313,11 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
     
     QFormLayout *formLayout = new QFormLayout(&dialog);
     
-    // Поля ввода
     QLineEdit *lastNameEdit = new QLineEdit(contact.lastName, &dialog);
     QLineEdit *firstNameEdit = new QLineEdit(contact.firstName, &dialog);
     QLineEdit *patronymicEdit = new QLineEdit(contact.patronymic, &dialog);
     QLineEdit *addressEdit = new QLineEdit(contact.address, &dialog);
     
-    // Поле даты рождения
     QDateEdit *birthDateEdit = new QDateEdit(&dialog);
     birthDateEdit->setCalendarPopup(true);
     birthDateEdit->setDisplayFormat("dd.MM.yyyy");
@@ -343,7 +326,6 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
     
     QLineEdit *emailEdit = new QLineEdit(contact.email, &dialog);
     
-    // Кнопка для управления телефонами
     QPushButton *phonesButton = new QPushButton("Управление телефонами", &dialog);
     phonesButton->setStyleSheet("QPushButton { padding: 5px; }");
     
@@ -355,36 +337,24 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
     formLayout->addRow("Email:", emailEdit);
     formLayout->addRow("Телефоны:", phonesButton);
     
-    // Кнопки OK/Cancel
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     formLayout->addRow(buttonBox);
     
-    // Хранение копии телефонов для диалога
     QList<PhoneInfo> tempPhones = contact.phones;
     
     connect(phonesButton, &QPushButton::clicked, [&]() {
         editPhones(tempPhones);
     });
     
-    // Убираем стандартные обработчики кнопок
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    
     bool dialogAccepted = false;
     
-    // Подключаем свою логику для кнопки OK
     connect(buttonBox, &QDialogButtonBox::accepted, [&]() {
-        // Валидация данных
         bool hasErrors = false;
         
         QString lastName = ContactValidator::normalizeName(lastNameEdit->text());
         if (!ContactValidator::isValidName(lastName)) {
-            QMessageBox::warning(&dialog, "Ошибка", "Некорректная фамилия!\n"
-                                                   "- Должна начинаться с заглавной буквы\n"
-                                                   "- Может содержать только буквы, дефис и пробел\n"
-                                                   "- После первой буквы должны быть строчные\n"
-                                                   "- Не может начинаться или заканчиваться на дефис");
+            QMessageBox::warning(&dialog, "Ошибка", "Некорректная фамилия!");
             lastNameEdit->setFocus();
-            lastNameEdit->selectAll();
             hasErrors = true;
         } else {
             contact.lastName = lastName;
@@ -393,13 +363,8 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
         QString firstName = ContactValidator::normalizeName(firstNameEdit->text());
         if (!ContactValidator::isValidName(firstName)) {
             if (!hasErrors) {
-                QMessageBox::warning(&dialog, "Ошибка", "Некорректное имя!\n"
-                                                       "- Должно начинаться с заглавной буквы\n"
-                                                       "- Может содержать только буквы, дефис и пробел\n"
-                                                       "- После первой буквы должны быть строчные\n"
-                                                       "- Не может начинаться или заканчиваться на дефис");
+                QMessageBox::warning(&dialog, "Ошибка", "Некорректное имя!");
                 firstNameEdit->setFocus();
-                firstNameEdit->selectAll();
             }
             hasErrors = true;
         } else {
@@ -409,13 +374,8 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
         QString patronymic = ContactValidator::normalizeName(patronymicEdit->text());
         if (!patronymic.isEmpty() && !ContactValidator::isValidName(patronymic)) {
             if (!hasErrors) {
-                QMessageBox::warning(&dialog, "Ошибка", "Некорректное отчество!\n"
-                                                       "- Должно начинаться с заглавной буквы\n"
-                                                       "- Может содержать только буквы, дефис и пробел\n"
-                                                       "- После первой буквы должны быть строчные\n"
-                                                       "- Не может начинаться или заканчиваться на дефис");
+                QMessageBox::warning(&dialog, "Ошибка", "Некорректное отчество!");
                 patronymicEdit->setFocus();
-                patronymicEdit->selectAll();
             }
             hasErrors = true;
         } else {
@@ -427,9 +387,7 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
         QDate birthDate = birthDateEdit->date();
         if (!ContactValidator::isValidBirthDate(birthDate)) {
             if (!hasErrors) {
-                QMessageBox::warning(&dialog, "Ошибка", "Некорректная дата рождения!\n"
-                                                       "- Дата должна быть в прошлом\n"
-                                                       "- Корректный день для выбранного месяца");
+                QMessageBox::warning(&dialog, "Ошибка", "Некорректная дата рождения!");
                 birthDateEdit->setFocus();
             }
             hasErrors = true;
@@ -440,18 +398,14 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
         QString email = emailEdit->text().trimmed();
         if (!email.isEmpty() && !ContactValidator::isValidEmail(email)) {
             if (!hasErrors) {
-                QMessageBox::warning(&dialog, "Ошибка", "Некорректный email!\n"
-                                                       "- Формат: user@domain.com\n"
-                                                       "- Только латинские буквы, цифры, точки, дефисы и подчеркивания");
+                QMessageBox::warning(&dialog, "Ошибка", "Некорректный email!");
                 emailEdit->setFocus();
-                emailEdit->selectAll();
             }
             hasErrors = true;
         } else {
             contact.email = email;
         }
         
-        // Проверка, что есть хотя бы один телефон
         if (tempPhones.isEmpty()) {
             if (!hasErrors) {
                 QMessageBox::warning(&dialog, "Ошибка", "Должен быть указан хотя бы один телефон!");
@@ -462,19 +416,16 @@ bool MainWindow::editContact(Contact &contact, bool isNew)
             contact.phones = tempPhones;
         }
         
-        // Если ошибок нет - принимаем диалог
         if (!hasErrors) {
             dialogAccepted = true;
             dialog.accept();
         }
-        // Если есть ошибки - диалог остается открытым, пользователь может исправить
     });
     
     connect(buttonBox, &QDialogButtonBox::rejected, [&]() {
         dialog.reject();
     });
     
-    // Показываем диалог
     dialog.exec();
     
     return dialogAccepted;

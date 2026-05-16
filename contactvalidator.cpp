@@ -37,7 +37,7 @@ QString ContactValidator::normalizePhone(const QString &phone) {
     QString digits = phone;
     digits.remove(QRegularExpression("[^\\d+]"));
     if (digits.startsWith("+")) {
-        digits.remove(0, 1); //убирать плюс
+        digits.remove(0, 1);
     }
     return digits;
 }
@@ -56,7 +56,6 @@ bool ContactValidator::isValidEmail(const QString &email) {
     QString trimmed = email.trimmed();
     if (trimmed.isEmpty()) return false;
     
-    //убирать пробелы вокруг @
     int atPos = trimmed.indexOf('@');
     if (atPos == -1) return false;
     QString user = trimmed.left(atPos).trimmed();
@@ -65,11 +64,9 @@ bool ContactValidator::isValidEmail(const QString &email) {
     
     QString cleanEmail = user + "@" + domain;
     
-    //проверка email 
     QRegularExpression re(R"(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)");
     return re.match(cleanEmail).hasMatch();
 }
-
 
 bool ContactValidator::isValidPhoneFormat(const QString &phone) {
     return validatePhoneWithDetails(phone).isEmpty();
@@ -79,14 +76,12 @@ QString ContactValidator::validatePhoneWithDetails(const QString &phone) {
     QString input = phone.trimmed();
     if (input.isEmpty()) return "Номер телефона не может быть пустым";
     
-    // Проверка парности скобок
     int open = input.count('(');
     int close = input.count(')');
     if (open != close) {
         return "Непарные скобки в номере телефона";
     }
     
-    // Проверка на двойные дефисы/пробелы
     if (input.contains("--")) {
         return "Обнаружены двойные дефисы в номере";
     }
@@ -94,7 +89,6 @@ QString ContactValidator::validatePhoneWithDetails(const QString &phone) {
         return "Обнаружены двойные пробелы в номере";
     }
     
-    // Проверка формата
     QRegularExpression re(R"(^(\+?[1-9]\d{0,2}[\s\-]*)?(\(?\d{2,5}\)?[\s\-]*)?\d{2,}[\s\-]*\d{2,}[\s\-]*\d{0,}$)");
     
     if (!re.match(input).hasMatch()) {
@@ -106,7 +100,6 @@ QString ContactValidator::validatePhoneWithDetails(const QString &phone) {
         return "Номер не содержит цифр";
     }
     
-    // Проверка длины с учётом формата
     bool hasPlus = input.contains('+');
     int minLength = hasPlus ? 8 : 7;
     int maxLength = 15;
@@ -123,20 +116,17 @@ QString ContactValidator::validatePhoneWithDetails(const QString &phone) {
         return "Слишком длинный номер. Максимум " + QString::number(maxLength) + " цифр";
     }
     
-    // Для российских номеров
     if (digits.startsWith("7") || digits.startsWith("8")) {
         if (digits.length() != 11) {
             return "Российский номер должен содержать 11 цифр (сейчас " + QString::number(digits.length()) + ")";
         }
     }
     
-    // Проверка на допустимые символы
     QRegularExpression invalidChars(R"([^0-9\s\-\+\(\)])");
     if (input.contains(invalidChars)) {
         return "Номер содержит недопустимые символы. Разрешены только цифры, пробелы, дефисы, скобки и знак +";
     }
     
-    // Проверка позиции плюса
     if (input.contains('+') && input.indexOf('+') != 0) {
         return "Знак '+' может быть только в начале номера";
     }
@@ -147,7 +137,6 @@ QString ContactValidator::validatePhoneWithDetails(const QString &phone) {
 bool ContactValidator::isValidBirthDate(const QDate &date) {
     if (!date.isValid()) return false;
     
-    //дата в прошлом
     if (date >= QDate::currentDate()) return false;
     return true;
 }

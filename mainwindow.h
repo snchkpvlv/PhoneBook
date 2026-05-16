@@ -25,7 +25,7 @@ private slots:
     void onSave();
     void onLoad();
     void onSearchTextChanged(const QString &text);
-    void onSearchFieldChanged(int index); 
+    void onSearchFieldChanged(int index);
 
 private:
     QTableView *tableView;
@@ -47,4 +47,4 @@ private:
     QString getPhoneType(QWidget *parent, const QString &currentType = "");
 };
 
-#endif 
+#endif
