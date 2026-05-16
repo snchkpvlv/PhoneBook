@@ -31,8 +31,8 @@ void managePhones(std::vector<PhoneInfo>& phones);
 std::string getPhoneType();
 
 int main() {
-    std::cout << "     ТЕЛЕФОННЫЙ СПРАВОЧНИК \n";
-
+    std::cout << "     ТЕЛЕФОННЫЙ СПРАВОЧНИК\n";
+    
     if (FileStorage::fileExists(currentFile)) {
         std::cout << "Найден существующий файл: " << currentFile << std::endl;
         std::cout << "Загрузить данные? (y/n): ";
@@ -63,7 +63,7 @@ int main() {
             case 6: sortContacts(); break;
             case 7: saveToFile(); break;
             case 8: loadFromFile(); break;
-            case 0: 
+            case 0:
                 std::cout << "\nВыход из программы\n";
                 char save;
                 std::cout << "Сохранить изменения перед выходом? (y/n): ";
@@ -80,7 +80,7 @@ int main() {
 }
 
 void showMenu() {
-    std::cout << "                МЕНЮ\n";
+    std::cout << "\n                МЕНЮ\n";
     std::cout << "1. Показать все контакты\n";
     std::cout << "2. Добавить контакт\n";
     std::cout << "3. Редактировать контакт\n";
@@ -106,7 +106,6 @@ void printTableHeader() {
     std::cout << std::string(160, '-') << "\n";
 }
 
-
 void printContact(const Contact& c, int index) {
     std::string lastName = c.lastName;
     if (lastName.length() > 18) lastName = lastName.substr(0, 15) + "...";
@@ -118,22 +117,23 @@ void printContact(const Contact& c, int index) {
     if (patronymic.length() > 18) patronymic = patronymic.substr(0, 15) + "...";
     
     std::string address = c.address;
-    if (address.length() > 23) address = address.substr(0, 20) + "...";
+    if (address.length() > 28) address = address.substr(0, 25) + "...";
     
     std::string email = c.email;
-    if (email.length() > 23) email = email.substr(0, 20) + "...";
-
+    if (email.length() > 28) email = email.substr(0, 25) + "...";
+    
     std::string phones = c.phonesAsString();
+    if (phones.length() > 48) phones = phones.substr(0, 45) + "...";
     
     std::cout << std::left 
               << std::setw(5) << index + 1
               << std::setw(20) << lastName
               << std::setw(15) << firstName
               << std::setw(20) << patronymic
-              << std::setw(25) << address
+              << std::setw(30) << address
               << std::setw(12) << c.birthDate
-              << std::setw(25) << email
-              << std::setw(40) << phones
+              << std::setw(30) << email
+              << std::setw(50) << phones
               << "\n";
 }
 
@@ -155,16 +155,16 @@ std::string inputString(const std::string& prompt, bool required) {
     while (true) {
         std::cout << prompt;
         std::getline(std::cin, input);
-
+        
         if (!required && input.empty()) {
             return input;
         }
-
+        
         if (required && input.empty()) {
             std::cout << "Это поле обязательно для заполнения.\n";
             continue;
         }
-
+        
         break;
     }
     
@@ -175,25 +175,25 @@ std::string inputName(const std::string& fieldName, bool required) {
     std::string name;
     while (true) {
         name = inputString(fieldName + ": ", required);
-
+        
         if (!required && name.empty()) {
             return name;
         }
-
+        
         if (required && name.empty()) {
             std::cout << "Поле \"" << fieldName << "\" обязательно для заполнения.\n";
             continue;
         }
-
+        
         if (!ContactValidator::isValidName(name)) {
             std::cout << "Ошибка. " << fieldName << " должно:\n"
                       << "- Начинаться с заглавной буквы\n"
                       << "- Содержать только буквы, цифры, дефис и пробел\n"
                       << "- Не начинаться и не заканчиваться на дефис\n"
                       << "- Не содержать двойные дефисы или пробелы\n";
-            continue;  
+            continue;
         }
-
+        
         break;
     }
     
@@ -204,16 +204,16 @@ std::string inputEmail(bool required) {
     std::string email;
     while (true) {
         email = inputString("Email: ", required);
-
+        
         if (!required && email.empty()) {
             return email;
         }
-
+        
         if (required && email.empty()) {
             std::cout << "Email обязателен для заполнения\n";
             continue;
         }
-
+        
         if (!email.empty() && !ContactValidator::isValidEmail(email)) {
             std::cout << "Ошибка. Некорректный email. Формат: user@domain.com\n";
             continue;
@@ -371,7 +371,7 @@ void addContact() {
         std::cout << "Ошибка. Должен быть указан хотя бы один телефон.\n";
         return;
     }
-
+    
     contacts.push_back(c);
     std::cout << "\nКонтакт успешно добавлен\n";
 }
@@ -395,7 +395,7 @@ void editContact() {
     }
     
     Contact& c = contacts[idx - 1];
-
+    
     std::cout << "\n--- РЕДАКТИРОВАНИЕ КОНТАКТА ---\n";
     std::cout << "(оставьте поле пустым, чтобы не изменять)\n\n";
     
@@ -416,7 +416,7 @@ void editContact() {
     newValue = inputBirthDate();
     if (!newValue.empty()) c.birthDate = newValue;
     
-    newValue = inputEmail(false);  
+    newValue = inputEmail(false);
     if (!newValue.empty()) c.email = newValue;
     
     std::cout << "\nРедактирование телефонов:\n";
@@ -424,8 +424,6 @@ void editContact() {
     
     std::cout << "\nКонтакт успешно обновлен\n";
 }
-
-
 
 void deleteContact() {
     if (contacts.empty()) {
@@ -485,7 +483,7 @@ void searchContacts() {
         std::cout << "Поисковый запрос не может быть пустым\n";
         return;
     }
-
+    
     std::string lowerQuery = query;
     for (char& c : lowerQuery) c = std::tolower(c);
     
@@ -495,32 +493,32 @@ void searchContacts() {
         bool found = false;
         
         switch (searchType) {
-            case 1: { 
+            case 1: {
                 std::string fullText = c.lastName + " " + c.firstName + " " + c.patronymic + " " + c.address + " " + c.email;
                 std::string lowerFull = fullText;
                 for (char& ch : lowerFull) ch = std::tolower(ch);
                 if (lowerFull.find(lowerQuery) != std::string::npos) found = true;
                 break;
             }
-            case 2: { 
+            case 2: {
                 std::string lowerLast = c.lastName;
                 for (char& ch : lowerLast) ch = std::tolower(ch);
                 if (lowerLast.find(lowerQuery) != std::string::npos) found = true;
                 break;
             }
-            case 3: { 
+            case 3: {
                 std::string lowerFirst = c.firstName;
                 for (char& ch : lowerFirst) ch = std::tolower(ch);
                 if (lowerFirst.find(lowerQuery) != std::string::npos) found = true;
                 break;
             }
-            case 4: { 
+            case 4: {
                 std::string lowerEmail = c.email;
                 for (char& ch : lowerEmail) ch = std::tolower(ch);
                 if (lowerEmail.find(lowerQuery) != std::string::npos) found = true;
                 break;
             }
-            case 5: { 
+            case 5: {
                 for (const PhoneInfo& p : c.phones) {
                     std::string lowerPhone = p.number;
                     for (char& ch : lowerPhone) ch = std::tolower(ch);
@@ -618,4 +616,3 @@ void loadFromFile() {
         std::cout << "\nОшибка при загрузке файла или файл не найден.\n";
     }
 }
-   

@@ -1,71 +1,10 @@
-#include "FileRepository.h"
+#include "FileStorage.h"
 #include "ContactValidator.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-FileRepository::FileRepository(const std::string& filepath) 
-    : filename(filepath), loaded(false) {}
-
-bool FileRepository::saveAll(const std::vector<Contact>& contacts) {
-    return saveToFile(contacts, filename);
-}
-
-bool FileRepository::loadAll(std::vector<Contact>& contacts) {
-    bool result = loadFromFile(contacts, filename);
-    if (result) {
-        cache = contacts;
-        loaded = true;
-    }
-    return result;
-}
-
-bool FileRepository::addContact(const Contact& contact) {
-    std::vector<Contact> all;
-    loadAll(all);
-    all.push_back(contact);
-    return saveAll(all);
-}
-
-bool FileRepository::updateContact(int index, const Contact& contact) {
-    std::vector<Contact> all;
-    loadAll(all);
-    if (index < 0 || index >= static_cast<int>(all.size())) {
-        return false;
-    }
-    all[index] = contact;
-    return saveAll(all);
-}
-
-bool FileRepository::deleteContact(int index) {
-    std::vector<Contact> all;
-    loadAll(all);
-    if (index < 0 || index >= static_cast<int>(all.size())) {
-        return false;
-    }
-    all.erase(all.begin() + index);
-    return saveAll(all);
-}
-
-bool FileRepository::contactExists(int index) const {
-    return loaded && index >= 0 && index < static_cast<int>(cache.size());
-}
-
-int FileRepository::getCount() {
-    if (!loaded) return 0;
-    return cache.size();
-}
-
-std::string FileRepository::getStorageType() const {
-    return "Файловое хранилище (" + filename + ")";
-}
-
-bool FileRepository::fileExists() const {
-    std::ifstream file(filename);
-    return file.good();
-}
-
-bool FileRepository::saveToFile(const std::vector<Contact>& contacts, const std::string& filename) {
+bool FileStorage::saveToFile(const std::vector<Contact>& contacts, const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         return false;
@@ -90,7 +29,7 @@ bool FileRepository::saveToFile(const std::vector<Contact>& contacts, const std:
     return true;
 }
 
-bool FileRepository::loadFromFile(std::vector<Contact>& contacts, const std::string& filename) {
+bool FileStorage::loadFromFile(std::vector<Contact>& contacts, const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         return false;
@@ -148,11 +87,11 @@ bool FileRepository::loadFromFile(std::vector<Contact>& contacts, const std::str
                 phone.type = phoneItem.substr(0, colonPos);
                 phone.number = phoneItem.substr(colonPos + 1);
                 
-                if (!ContactValidator::isValidPhoneFormat(phone.number)) {
+                if (ContactValidator::isValidPhoneFormat(phone.number)) {
+                    c.phones.push_back(phone);
+                } else {
                     std::cerr << "Ошибка в строке " << lineNumber << ": некорректный телефон\n";
-                    continue;
                 }
-                c.phones.push_back(phone);
             }
         }
         
@@ -166,4 +105,9 @@ bool FileRepository::loadFromFile(std::vector<Contact>& contacts, const std::str
     
     file.close();
     return true;
+}
+
+bool FileStorage::fileExists(const std::string& filename) {
+    std::ifstream file(filename);
+    return file.good();
 }

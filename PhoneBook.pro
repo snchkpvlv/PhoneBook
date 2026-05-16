@@ -13,5 +13,4 @@ HEADERS += \
     ContactValidator.h \
     FileStorage.h
 
-# Для правильной работы регулярных выражений с юникодом
 DEFINES += QT_USE_QSTRINGBUILDER
