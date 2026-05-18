@@ -1,3 +1,4 @@
+
 #ifndef CONTACTVALIDATOR_H
 #define CONTACTVALIDATOR_H
 

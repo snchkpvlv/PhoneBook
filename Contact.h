@@ -8,7 +8,6 @@
 struct PhoneInfo {
     std::string type;      
     std::string number;    
-    
     std::string displayString() const;
 };
 
